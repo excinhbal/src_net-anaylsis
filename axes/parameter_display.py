@@ -201,6 +201,31 @@ def stdp_params_display(ax, bpath, nsp):
             bbox={'boxstyle': 'square, pad=0.3', 'facecolor':'white',
                   'alpha':1, 'edgecolor':'none'},
             transform = ax.transAxes)
+
+    if nsp['istdp_active']:
+
+        text = r'\textbf{iSTDP parameters}'
+        
+        ax.text(0., 0.2, text,
+                horizontalalignment='left',
+                verticalalignment='top',
+                linespacing = 1.95,
+                fontsize=13,
+                bbox={'boxstyle': 'square, pad=0.3', 'facecolor':'white',
+                      'alpha':1, 'edgecolor':'none'},
+                transform = ax.transAxes)
+
+        text = r'$\mathrm{LTD}_{\alpha} = %f $' %(nsp['LTD_a']) 
+
+        ax.text(0., 0.05, text,
+                horizontalalignment='left',
+                verticalalignment='top',
+                linespacing = 1.95,
+                fontsize=12,
+                bbox={'boxstyle': 'square, pad=0.3', 'facecolor':'white',
+                      'alpha':1, 'edgecolor':'none'},
+                transform = ax.transAxes)
+
         
 
    
