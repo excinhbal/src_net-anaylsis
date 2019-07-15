@@ -63,9 +63,11 @@ def overview_figure(bpath, nsp):
 
     ge_plot(axs['4,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
     gi_plot(axs['4,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
+    gegi_plot(axs['4,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
 
     ge_plot(axs['4,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
     gi_plot(axs['4,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
+    gegi_plot(axs['4,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
 
     ge_plot(axs['4,3'], bpath, nsp, tmin=tmin3, tmax=tmin3+100*ms, i=1)
 

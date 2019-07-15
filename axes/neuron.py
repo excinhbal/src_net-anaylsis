@@ -137,6 +137,45 @@ def gi_plot(ax, bpath, nsp, tmin, tmax, i=0):
 
 
 
+    
+def gegi_plot(ax, bpath, nsp, tmin, tmax, i=0):
+
+    with open(bpath+'/raw/gexc_stat.p', 'rb') as pfile:
+        GExc_stat = pickle.load(pfile)
+
+    try:
+        ge_data=GExc_stat['ge']
+        gi_data=GExc_stat['gi']
+        V_data=GExc_stat['V']
+
+        indx = np.logical_and(GExc_stat['t']>tmin, GExc_stat['t']<tmax)
+
+        # for i in range(np.shape(gi_data)[1]):
+        #     ax.plot(GExc_stat['t'][indx]/second, gi_data[:,i][indx])
+
+        ax.plot(GExc_stat['t'][indx]/second,
+                (nsp['Ei']/mV-V_data[:,i][indx]/mV)*gi_data[:,i][indx] +
+                (nsp['Ee']/mV-V_data[:,i][indx]/mV)*ge_data[:,i][indx],
+                color='grey', alpha=0.7)
+
+        #ax.set_xlim(tmin/second, tmax/second)
+        ax.set_xlabel('time [s]')
+
+        #ax.set_ylim(0, nsp['N_e'] + nsp['N_i'])
+        # ax.set_title('T='+str(T/second)+' s')
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+        
+    except KeyError:
+        ax.axis('off')
+        
+        
+
+
+
 def voltage_traces(ax, bpath, nsp, tmin, tmax):
     
     with open(bpath+'/raw/gexc_stat.p', 'rb') as pfile:
