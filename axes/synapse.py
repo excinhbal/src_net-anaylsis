@@ -7,7 +7,7 @@ from brian2.units import mV, ms, second
 from decimal import Decimal
 
 
-def n_active_synapses(ax, bpath, nsp):
+def n_active_synapses_exc(ax, bpath, nsp):
 
     try: 
         with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
@@ -33,14 +33,35 @@ def n_active_synapses(ax, bpath, nsp):
         
         ax.plot(synee_a['t'], np.sum(measurable_at_t,axis=1)/all_at_t,
                 lw=2, color='deepskyblue')
-
-        
+    
     except FileNotFoundError:
         print(bpath[-4:], "reports: No n_active data!")
         ax.set_title("No data found")
 
+    try: 
+        with open(bpath+'/raw/c_stat.p', 'rb') as pfile:
+            c_stat = pickle.load(pfile)
+
+        ax.plot(c_stat['t'], c_stat['c'], color='red', lw=2)
+        
+    except FileNotFoundError:
+        print(bpath[-4:], "reports: No n_active data!")
+        ax.set_title("no c_stat data")
+
+    ax.set_xlabel('time [s]')
+    ax.set_ylabel('fraction of synapses active')
+    
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    
+
+def n_active_synapses_inh(ax, bpath, nsp):
 
     if nsp['istrct_active']:
+        
         try: 
             with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
                 synei_a = pickle.load(pfile)
@@ -62,26 +83,17 @@ def n_active_synapses(ax, bpath, nsp):
             ax.set_title("No data found")        
 
 
-    try: 
-        with open(bpath+'/raw/c_stat.p', 'rb') as pfile:
-            c_stat = pickle.load(pfile)
 
-        ax.plot(c_stat['t'], c_stat['c'], color='red', lw=2)
-        
-    except FileNotFoundError:
-        print(bpath[-4:], "reports: No n_active data!")
-        ax.set_title("No data found")
+        ax.set_xlabel('time [s]')
+        ax.set_ylabel('fraction of synapses active')
 
-        
-    
-    ax.set_xlabel('time [s]')
-    ax.set_ylabel('fraction of synapses active')
-    
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
 
+    else:
+        ax.axis('off')
 
     
 def synapse_weights_linear(ax, bpath, nsp, tstep, bins, cutoff,

@@ -48,7 +48,8 @@ def overview_figure(bpath, nsp):
 
     inst_rates(axs['2,1'], bpath, nsp, tmin=tmin1, tmax=tmax1)
     inst_rates(axs['2,2'], bpath, nsp, tmin=tmin3, tmax=tmax3)
-    n_active_synapses(axs['2,3'], bpath, nsp)
+    n_active_synapses_exc(axs['2,3'], bpath, nsp)
+    n_active_synapses_inh(axs['2,4'], bpath, nsp)
 
     
     synapse_weight_traces(axs['3,1'], bpath, nsp, tmin=0*second,
