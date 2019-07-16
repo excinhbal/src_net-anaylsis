@@ -22,7 +22,7 @@ from .axes.parameter_display import *
 
 
 
-def synw_figure(bpath, nsp):
+def synw_figure(bpath, nsp, connections='EE'):
 
 
     fig = pl.figure()
@@ -38,43 +38,43 @@ def synw_figure(bpath, nsp):
 
 
     synapse_weights_linear(axs['1,1'], bpath, nsp, tstep=0, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     synapse_weights_linear(axs['2,1'], bpath, nsp, tstep=2, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     synapse_weights_linear(axs['3,1'], bpath, nsp, tstep=4, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     synapse_weights_linear(axs['4,1'], bpath, nsp, tstep=6, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     synapse_weights_linear(axs['5,1'], bpath, nsp, tstep=8, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     synapse_weights_linear(axs['6,1'], bpath, nsp, tstep=10, bins=50,
-                           cutoff=0.)
+                           cutoff=0., connections=connections)
     
     synapse_weights_linear(axs['1,2'], bpath, nsp, tstep=0, bins=50,
-                           cutoff=10.**(-20))
+                           cutoff=10.**(-20), connections=connections)
     synapse_weights_linear(axs['2,2'], bpath, nsp, tstep=2, bins=50,
-                           cutoff=10**(-20))
+                           cutoff=10**(-20), connections=connections)
     synapse_weights_linear(axs['3,2'], bpath, nsp, tstep=4, bins=50,
-                           cutoff=10.**(-20))
+                           cutoff=10.**(-20), connections=connections)
     synapse_weights_linear(axs['4,2'], bpath, nsp, tstep=6, bins=50,
-                           cutoff=10.**(-20))
+                           cutoff=10.**(-20), connections=connections)
     synapse_weights_linear(axs['5,2'], bpath, nsp, tstep=8, bins=50,
-                           cutoff=10.**(-20))
+                           cutoff=10.**(-20), connections=connections)
     synapse_weights_linear(axs['6,2'], bpath, nsp, tstep=10, bins=50,
-                           cutoff=0.0001)
+                           cutoff=10.**(-20), connections=connections)
 
     synapse_weights_linear(axs['1,3'], bpath, nsp, tstep=0, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
     synapse_weights_linear(axs['2,3'], bpath, nsp, tstep=2, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
     synapse_weights_linear(axs['3,3'], bpath, nsp, tstep=4, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
     synapse_weights_linear(axs['4,3'], bpath, nsp, tstep=6, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
     synapse_weights_linear(axs['5,3'], bpath, nsp, tstep=8, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
     synapse_weights_linear(axs['6,3'], bpath, nsp, tstep=10, bins=50,
-                           cutoff=10**(-10))
+                           cutoff=10**(-10), connections=connections)
         
 
     netw_params_display(axs['1,4'], bpath, nsp)
@@ -91,7 +91,7 @@ def synw_figure(bpath, nsp):
 
     pl.tight_layout()
 
-    directory = "figures/synw/linear"
+    directory = "figures/synw_" + connections + "_linear"
     if not os.path.exists(directory):
         os.makedirs(directory)
         
@@ -119,7 +119,10 @@ if __name__ == "__main__":
             with open(bpath+'/raw/namespace.p', 'rb') as pfile:
                 nsp=pickle.load(pfile)
 
-            synw_figure(bpath, nsp)
+            synw_figure(bpath, nsp, connections='EE')
+
+            if nsp['istdp_active']:
+                synw_figure(bpath, nsp, connections='EI')
 
         except FileNotFoundError:
             print(bpath[-4:], "reports: No namespace data. Skipping.")
