@@ -46,7 +46,7 @@ def n_active_synapses_exc(ax, bpath, nsp):
         
     except FileNotFoundError:
         print(bpath[-4:], "reports: No n_active data!")
-        ax.set_title("no c_stat data")
+        ax.set_title("no cstat data")
 
     ax.set_xlabel('time [s]')
     ax.set_ylabel('fraction of synapses active')
