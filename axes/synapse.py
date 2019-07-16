@@ -25,31 +25,41 @@ def n_active_synapses(ax, bpath, nsp):
 
         ax.plot(synee_a['t'], active_at_t/all_at_t, lw=2)
 
+        # trace2 - only synapse active and larger than c
+        measurable_at_t = (synee_a['a'] > nsp['strct_c']).astype(int)
+
+        assert np.array_equal(measurable_at_t,
+                              measurable_at_t * synee_a['syn_active'])
+        
+        ax.plot(synee_a['t'], np.sum(measurable_at_t,axis=1)/all_at_t,
+                lw=2, color='deepskyblue')
+
         
     except FileNotFoundError:
         print(bpath[-4:], "reports: No n_active data!")
         ax.set_title("No data found")
 
 
-    try: 
-        with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
-            synei_a = pickle.load(pfile)
+    if nsp['istrct_active']:
+        try: 
+            with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
+                synei_a = pickle.load(pfile)
 
-        # trace 1: data from synEI_a (~11 data points)
-        active_at_t = np.sum(synei_a['syn_active'], axis=1)
+            # trace 1: data from synEI_a (~11 data points)
+            active_at_t = np.sum(synei_a['syn_active'], axis=1)
 
-        print(active_at_t)
-        print(synei_a['t'])
+            print(active_at_t)
+            print(synei_a['t'])
 
-        all_at_t = np.shape(synei_a['syn_active'])[1]
-        # assert all_at_t == nsp['N_e']*nsp['N_i']
+            all_at_t = np.shape(synei_a['syn_active'])[1]
+            # assert all_at_t == nsp['N_e']*nsp['N_i']
 
-        ax.plot(synei_a['t'], active_at_t/all_at_t, lw=2)
+            ax.plot(synei_a['t'], active_at_t/all_at_t, lw=2)
 
-        
-    except FileNotFoundError:
-        print(bpath[-4:], "reports: No n_active data!")
-        ax.set_title("No data found")        
+
+        except FileNotFoundError:
+            print(bpath[-4:], "reports: No n_active data!")
+            ax.set_title("No data found")        
 
 
     try: 
