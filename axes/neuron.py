@@ -209,26 +209,43 @@ def voltage_traces(ax, bpath, nsp, tmin, tmax):
 
 
         
-def firing_rates_plot(ax, bpath, nsp):
+def firing_rates_plot_exc(ax, bpath, nsp):
 
     with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
         GExc_spks = pickle.load(pfile)
-    with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
-        GInh_spks = pickle.load(pfile)
 
     T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
 
     indx = GExc_spks['t']>T_prev
     t_exc, id_exc = GExc_spks['t'][indx], GExc_spks['i'][indx]
 
+    fr_exc = [np.sum(id_exc==i)/(nsp['T5']/second) for i in range(nsp['N_e'])]
+
+    ax.hist(fr_exc, bins=35, density=True)
+    
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    ax.set_xlabel('firing rate [Hz]')
+    ax.set_ylabel('probability density')
+
+
+    
+def firing_rates_plot_inh(ax, bpath, nsp):
+
+    with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
+        GInh_spks = pickle.load(pfile)
+
+    T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
+
     indx = GInh_spks['t']>T_prev
     t_inh, id_inh = GInh_spks['t'][indx], GInh_spks['i'][indx]
 
-    fr_exc = [np.sum(id_exc==i)/(nsp['T5']/second) for i in range(nsp['N_e'])]
     fr_inh = [np.sum(id_inh==i)/(nsp['T5']/second) for i in range(nsp['N_i'])]
 
-    ax.hist(fr_exc, bins=25, density=True)
-    ax.hist(fr_inh, bins=10, density=True)
+    ax.hist(fr_inh, bins=20, density=True, color='red')
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -237,3 +254,8 @@ def firing_rates_plot(ax, bpath, nsp):
 
     ax.set_xlabel('firing rate [Hz]')
     ax.set_ylabel('probability density')
+
+
+
+
+    

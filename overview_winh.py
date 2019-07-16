@@ -44,7 +44,8 @@ def overview_figure(bpath, nsp):
     raster_plot(axs['1,1'], bpath, nsp, tmin=tmin1, tmax=tmax1)
     raster_plot(axs['1,2'], bpath, nsp, tmin=tmin3, tmax=tmax3)
 
-    firing_rates_plot(axs['1,3'], bpath, nsp)
+    firing_rates_plot_exc(axs['1,3'], bpath, nsp)
+    firing_rates_plot_inh(axs['1,4'], bpath, nsp)
 
     inst_rates(axs['2,1'], bpath, nsp, tmin=tmin1, tmax=tmax1)
     inst_rates(axs['2,2'], bpath, nsp, tmin=tmin3, tmax=tmax3)
@@ -90,13 +91,12 @@ def overview_figure(bpath, nsp):
 
 
     insP_trace(axs['4,4'], bpath, nsp)
+
     
     synapse_weights_linear(axs['5,4'], bpath, nsp, tstep=-1, bins=50,
                            cutoff=-1)
     synapse_weights_log(   axs['5,5'], bpath, nsp, tstep=-1, bins=50,
                            cutoff=10.**(-4))
-
-
 
 
     synapse_weights_linear(axs['6,4'], bpath, nsp, tstep=-1, bins=50,
