@@ -235,6 +235,8 @@ def firing_rates_plot_exc(ax, bpath, nsp):
     
 def firing_rates_plot_inh(ax, bpath, nsp):
 
+    color, alpha = '#d62728', 0.7
+
     with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
         GInh_spks = pickle.load(pfile)
 
@@ -245,7 +247,7 @@ def firing_rates_plot_inh(ax, bpath, nsp):
 
     fr_inh = [np.sum(id_inh==i)/(nsp['T5']/second) for i in range(nsp['N_i'])]
 
-    ax.hist(fr_inh, bins=20, density=True, color='red')
+    ax.hist(fr_inh, bins=20, density=True, color=color, alpha=alpha)
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
