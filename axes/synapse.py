@@ -271,3 +271,130 @@ def insP_trace(ax, bpath, nsp):
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
+
+
+    
+def synEEdyn_data(ax, bpath, nsp, when, bins=50):
+
+    try:
+        with open(bpath+'/raw/syneedynrec.p', 'rb') as pfile:
+            syndyn = pickle.load(pfile)
+
+        nrec = nsp['syndynrec_npts']
+
+        assert len(syndyn['t']) == nrec*2
+
+        if when=='start':
+            syn_a = syndyn['a'][:nrec]
+        elif when=='end':
+            syn_a = syndyn['a'][nrec:]
+            
+        dsyn_a = np.diff(syn_a, axis=0)
+
+        syn_a, dsyn_a = syn_a[:-1].flatten(), dsyn_a.flatten()
+        
+        idx = np.logical_or(syn_a!=0, dsyn_a!=0)
+        syn_a, dsyn_a = syn_a[idx], dsyn_a[idx]
+          
+        ax.hist(dsyn_a, bins=bins)
+        
+        label = '$\Delta$ synaptic weight in ' + \
+                r'$dt=\text{\SI{' +\
+                '%d' %(int(nsp['syndynrec_dt']/second)) +\
+                '}{s}}$'
+      
+        ax.set_xlabel(label)
+
+        if when=='start':
+            title = r'$T=\text{\SI{'+ \
+                    '%d' %(int(syndyn['t'][0]/second)) +\
+                    r'}{s}}$ until $T=\text{\SI{'+\
+                    '%d' %(int(syndyn['t'][nrec-1]/second)) +\
+                    '}{s}}$'
+
+        elif when=='end':
+
+            title = r'$T=\text{\SI{'+ \
+                    '%d' %(int(syndyn['t'][nrec]/second)) +\
+                    r'}{s}}$ until $T=\text{\SI{'+\
+                    '%d' %(int(syndyn['t'][-1]/second)) +\
+                    '}{s}}$'
+
+        ax.set_title(title)
+
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+        
+    except FileNotFoundError:
+        ax.set_title("No data found")
+        ax.axis('off')
+    
+
+
+def synEIdyn_data(ax, bpath, nsp, when, bins=50):
+
+    color, alpha = '#d62728', 0.7
+
+    try:
+        with open(bpath+'/raw/syneidynrec.p', 'rb') as pfile:
+            syndyn = pickle.load(pfile)
+
+        nrec = nsp['syndynrec_npts']
+
+        assert len(syndyn['t']) == nrec*2
+
+        if when=='start':
+            syn_a = syndyn['a'][:nrec]
+        elif when=='end':
+            syn_a = syndyn['a'][nrec:]
+        
+        dsyn_a = np.diff(syn_a, axis=0)
+
+        syn_a, dsyn_a = syn_a[:-1].flatten(), dsyn_a.flatten()
+        
+        idx = np.logical_or(syn_a!=0, dsyn_a!=0)
+        syn_a, dsyn_a = syn_a[idx], dsyn_a[idx]
+          
+        ax.hist(dsyn_a, bins=bins,
+                color=color, alpha=alpha)
+        
+        label = '$\Delta$ synaptic weight in ' + \
+                r'$dt=\text{\SI{' +\
+                '%d' %(int(nsp['syndynrec_dt']/second)) +\
+                '}{s}}$'
+      
+        ax.set_xlabel(label)
+
+        if when=='start':
+            title = r'$T=\text{\SI{'+ \
+                    '%d' %(int(syndyn['t'][0]/second)) +\
+                    r'}{s}}$ until $T=\text{\SI{'+\
+                    '%d' %(int(syndyn['t'][nrec-1]/second)) +\
+                    '}{s}}$'
+
+        elif when=='end':
+
+            title = r'$T=\text{\SI{'+ \
+                    '%d' %(int(syndyn['t'][nrec]/second)) +\
+                    r'}{s}}$ until $T=\text{\SI{'+\
+                    '%d' %(int(syndyn['t'][-1]/second)) +\
+                    '}{s}}$'
+
+        ax.set_title(title)
+
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+        
+    except FileNotFoundError:
+        ax.set_title("No data found")
+        ax.axis('off')
+    
+        

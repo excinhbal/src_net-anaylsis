@@ -52,6 +52,7 @@ def overview_figure(bpath, nsp):
     n_active_synapses_exc(axs['2,3'], bpath, nsp)
     n_active_synapses_inh(axs['2,4'], bpath, nsp)
 
+    insP_trace(axs['2,5'], bpath, nsp)
     
     synapse_weight_traces(axs['3,1'], bpath, nsp, tmin=0*second,
                           tmax=nsp['T1'])
@@ -65,7 +66,10 @@ def overview_figure(bpath, nsp):
                           tmax=nsp['T2']+nsp['T1']+nsp['T3'],
                           ylim_top=0.001)
 
-
+    synEEdyn_data(axs['3,4'], bpath, nsp, when='start')
+    synEEdyn_data(axs['3,5'], bpath, nsp, when='end')
+    
+    
     synapse_weight_traces(axs['4,1'], bpath, nsp,
                           connections = 'EI',
                           tmin=0*second, tmax=nsp['T1'])
@@ -75,6 +79,9 @@ def overview_figure(bpath, nsp):
                           tmin=nsp['T2']+nsp['T1'],
                           tmax=nsp['T2']+nsp['T1']+nsp['T3'])
 
+
+    synEIdyn_data(axs['4,4'], bpath, nsp, when='start')
+    synEIdyn_data(axs['4,5'], bpath, nsp, when='end')
     
     ge_plot(axs['5,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
     gi_plot(axs['5,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
@@ -90,7 +97,7 @@ def overview_figure(bpath, nsp):
     voltage_traces(axs['6,2'], bpath, nsp, tmin=tmin3, tmax=tmax3)
 
 
-    insP_trace(axs['4,4'], bpath, nsp)
+
 
     
     synapse_weights_linear(axs['5,4'], bpath, nsp, tstep=-1, bins=50,
