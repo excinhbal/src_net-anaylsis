@@ -211,53 +211,59 @@ def voltage_traces(ax, bpath, nsp, tmin, tmax):
         
 def firing_rates_plot_exc(ax, bpath, nsp):
 
-    with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
-        GExc_spks = pickle.load(pfile)
+    try:
 
-    T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
+        with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
+            GExc_spks = pickle.load(pfile)
 
-    indx = GExc_spks['t']>T_prev
-    t_exc, id_exc = GExc_spks['t'][indx], GExc_spks['i'][indx]
+        T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
 
-    fr_exc = [np.sum(id_exc==i)/(nsp['T5']/second) for i in range(nsp['N_e'])]
+        indx = GExc_spks['t']>T_prev
+        t_exc, id_exc = GExc_spks['t'][indx], GExc_spks['i'][indx]
 
-    ax.hist(fr_exc, bins=35, density=True)
-    
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
+        fr_exc = [np.sum(id_exc==i)/(nsp['T5']/second) for i in range(nsp['N_e'])]
 
-    ax.set_xlabel('firing rate [Hz]')
-    ax.set_ylabel('probability density')
+        ax.hist(fr_exc, bins=35, density=True)
+  
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
 
+        ax.set_xlabel('firing rate [Hz]')
+        ax.set_ylabel('probability density')
+
+    except (ValueError,KeyError) as e:
+        ax.axis('off')
 
     
 def firing_rates_plot_inh(ax, bpath, nsp):
 
     color, alpha = '#d62728', 0.7
 
-    with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
-        GInh_spks = pickle.load(pfile)
+    try:
 
-    T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
+        with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
+            GInh_spks = pickle.load(pfile)
 
-    indx = GInh_spks['t']>T_prev
-    t_inh, id_inh = GInh_spks['t'][indx], GInh_spks['i'][indx]
+        T_prev = nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
 
-    fr_inh = [np.sum(id_inh==i)/(nsp['T5']/second) for i in range(nsp['N_i'])]
+        indx = GInh_spks['t']>T_prev
+        t_inh, id_inh = GInh_spks['t'][indx], GInh_spks['i'][indx]
 
-    ax.hist(fr_inh, bins=20, density=True, color=color, alpha=alpha)
+        fr_inh = [np.sum(id_inh==i)/(nsp['T5']/second) for i in range(nsp['N_i'])]
 
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
+        ax.hist(fr_inh, bins=20, density=True, color=color, alpha=alpha)
 
-    ax.set_xlabel('firing rate [Hz]')
-    ax.set_ylabel('probability density')
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
 
+        ax.set_xlabel('firing rate [Hz]')
+        ax.set_ylabel('probability density')
 
-
+    except (ValueError,KeyError) as e:
+        ax.axis('off')
 
     
