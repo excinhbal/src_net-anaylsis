@@ -99,108 +99,116 @@ def n_active_synapses_inh(ax, bpath, nsp):
 def synapse_weights_linear(ax, bpath, nsp, tstep, bins, cutoff,
                            label='', fit=False, connections='EE'):
 
-    if connections=='EE':
-        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
-            syn_a = pickle.load(pfile)
-        color, alpha = '#1f77b4', 1
-    elif connections=='EI':
-        with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
-            syn_a = pickle.load(pfile)
-        color, alpha = '#d62728', 0.7
-        
-    weight_at_t = syn_a['a'][tstep,:]
-    states_at_t = syn_a['syn_active'][tstep,:]
 
-    active_weight_at_t = weight_at_t[states_at_t==1]
+    try:
+        if connections=='EE':
+            with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+                syn_a = pickle.load(pfile)
+            color, alpha = '#1f77b4', 1
+        elif connections=='EI':
+            with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
+                syn_a = pickle.load(pfile)
+            color, alpha = '#d62728', 0.7
 
-    active_weight_at_t_cutoff = active_weight_at_t[active_weight_at_t>cutoff]
+        weight_at_t = syn_a['a'][tstep,:]
+        states_at_t = syn_a['syn_active'][tstep,:]
 
-    fraction_of_cutoff = len(active_weight_at_t_cutoff)/len(active_weight_at_t)
+        active_weight_at_t = weight_at_t[states_at_t==1]
 
-    print(fraction_of_cutoff)
+        active_weight_at_t_cutoff = active_weight_at_t[active_weight_at_t>cutoff]
 
-    if fit:
-        ax.hist(active_weight_at_t_cutoff, bins=bins, label=label,
-                density=True, color=color, alpha=alpha)
-    else:
-        ax.hist(active_weight_at_t_cutoff, bins=bins, label=label,
-                color=color, alpha=alpha)
-        
-    if fit:
-        fs, floc, fscale = lognorm.fit(active_weight_at_t_cutoff, floc=0)
-        f_rv = lognorm(fs, loc=0, scale=fscale)
-        xs = np.logspace(start=np.log10(np.min(active_weight_at_t_cutoff)),
-                         stop=np.log10(np.max(active_weight_at_t_cutoff)),
-                         base=10., num=5000)
-        ax.plot(xs, f_rv.pdf(xs), 'r')
-    
-    if connections=='EE':
-        ax.set_title('E'+r'$\leftarrow$'+'E weights at t=\SI{'+ \
-                     str(syn_a['t'][tstep]/second)+'}{s}')
-    elif connections=='EI':
-        ax.set_title('E'+r'$\leftarrow$'+'I weights at t=\SI{'+ \
-                     str(syn_a['t'][tstep]/second)+'}{s}')
-        
-    ax.set_xlabel('synaptic weight')
-    
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
+        fraction_of_cutoff = len(active_weight_at_t_cutoff)/len(active_weight_at_t)
 
+        print(fraction_of_cutoff)
+
+        if fit:
+            ax.hist(active_weight_at_t_cutoff, bins=bins, label=label,
+                    density=True, color=color, alpha=alpha)
+        else:
+            ax.hist(active_weight_at_t_cutoff, bins=bins, label=label,
+                    color=color, alpha=alpha)
+
+        if fit:
+            fs, floc, fscale = lognorm.fit(active_weight_at_t_cutoff, floc=0)
+            f_rv = lognorm(fs, loc=0, scale=fscale)
+            xs = np.logspace(start=np.log10(np.min(active_weight_at_t_cutoff)),
+                             stop=np.log10(np.max(active_weight_at_t_cutoff)),
+                             base=10., num=5000)
+            ax.plot(xs, f_rv.pdf(xs), 'r')
+
+        if connections=='EE':
+            ax.set_title('E'+r'$\leftarrow$'+'E weights at t=\SI{'+ \
+                         str(syn_a['t'][tstep]/second)+'}{s}')
+        elif connections=='EI':
+            ax.set_title('E'+r'$\leftarrow$'+'I weights at t=\SI{'+ \
+                         str(syn_a['t'][tstep]/second)+'}{s}')
+
+        ax.set_xlabel('synaptic weight')
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+
+    except FileNotFoundError:
+        print("Couldn't find " + connections + " data")   
 
 
 def synapse_weights_log(ax, bpath, nsp, tstep, bins, cutoff, label='',
                         fit=True, connections='EE'):
 
-    if connections=='EE':
-        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
-            syn_a = pickle.load(pfile)
-        color, alpha = '#1f77b4', 1
-    elif connections=='EI':
-        with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
-            syn_a = pickle.load(pfile)
-        color, alpha = '#d62728', 0.7
-            
-    weight_at_t = syn_a['a'][tstep,:]
-    states_at_t = syn_a['syn_active'][tstep,:]
+    try:
+        if connections=='EE':
+            with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+                syn_a = pickle.load(pfile)
+            color, alpha = '#1f77b4', 1
+        elif connections=='EI':
+            with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
+                syn_a = pickle.load(pfile)
+            color, alpha = '#d62728', 0.7
 
-    active_weight_at_t = weight_at_t[states_at_t==1]
+        weight_at_t = syn_a['a'][tstep,:]
+        states_at_t = syn_a['syn_active'][tstep,:]
 
-    active_weight_at_t_cutoff = active_weight_at_t[active_weight_at_t>cutoff]
+        active_weight_at_t = weight_at_t[states_at_t==1]
 
-    fraction_of_cutoff = len(active_weight_at_t_cutoff)/len(active_weight_at_t)    
+        active_weight_at_t_cutoff = active_weight_at_t[active_weight_at_t>cutoff]
 
-    log_weights = np.log10(active_weight_at_t_cutoff)
+        fraction_of_cutoff = len(active_weight_at_t_cutoff)/len(active_weight_at_t)    
 
-    if len(log_weights)>0:
+        log_weights = np.log10(active_weight_at_t_cutoff)
 
-        ax.hist(log_weights, bins=bins, density=True, label=label,
-                color=color, alpha=alpha)
+        if len(log_weights)>0:
 
-        if fit:
-            floc, fscale = norm.fit(log_weights)
-            f_rv = norm(loc=floc, scale=fscale)
-            xs = np.linspace(start=np.min(log_weights),
-                             stop=np.max(log_weights),
-                             num = 1000)
-            ax.plot(xs, f_rv.pdf(xs), lw=2, color='red',
-                    linestyle='-')
+            ax.hist(log_weights, bins=bins, density=True, label=label,
+                    color=color, alpha=alpha)
 
-    if connections=='EE':
-        ax.set_title('E'+r'$\leftarrow$'+'E weights at t=\SI{'+ \
-                     str(syn_a['t'][tstep]/second)+'}{s}')
-    elif connections=='EI':
-        ax.set_title('E'+r'$\leftarrow$'+'I weights at t=\SI{'+ \
-                     str(syn_a['t'][tstep]/second)+'}{s}')
-        
-    ax.set_xlabel('log10 of synaptic weight')
+            if fit:
+                floc, fscale = norm.fit(log_weights)
+                f_rv = norm(loc=floc, scale=fscale)
+                xs = np.linspace(start=np.min(log_weights),
+                                 stop=np.max(log_weights),
+                                 num = 1000)
+                ax.plot(xs, f_rv.pdf(xs), lw=2, color='red',
+                        linestyle='-')
 
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
+        if connections=='EE':
+            ax.set_title('E'+r'$\leftarrow$'+'E weights at t=\SI{'+ \
+                         str(syn_a['t'][tstep]/second)+'}{s}')
+        elif connections=='EI':
+            ax.set_title('E'+r'$\leftarrow$'+'I weights at t=\SI{'+ \
+                         str(syn_a['t'][tstep]/second)+'}{s}')
 
+        ax.set_xlabel('log10 of synaptic weight')
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+    except FileNotFoundError:
+        print("Couldn't find " + connections + " data")   
 
 
 
@@ -208,14 +216,17 @@ def synapse_weight_traces(ax, bpath, nsp, tmin, tmax,
                           connections='EE', ylim_top=-1,
                           plot_thresholds=False):
 
-    if connections=='EE':
-        with open(bpath+'/raw/synee_stat.p', 'rb') as pfile:
-            syn_stat = pickle.load(pfile)
-    elif connections=='EI':
-        with open(bpath+'/raw/synei_stat.p', 'rb') as pfile:
-            syn_stat = pickle.load(pfile)
 
     try:
+
+        if connections=='EE':
+            with open(bpath+'/raw/synee_stat.p', 'rb') as pfile:
+                syn_stat = pickle.load(pfile)
+        elif connections=='EI':
+            with open(bpath+'/raw/synei_stat.p', 'rb') as pfile:
+                syn_stat = pickle.load(pfile)
+
+        
         for i in range(np.shape(syn_stat['a'])[1]):
             indx = np.logical_and(syn_stat['t'] > tmin,
                                   syn_stat['t'] < tmax)
@@ -234,7 +245,7 @@ def synapse_weight_traces(ax, bpath, nsp, tmin, tmax,
         ax.xaxis.set_ticks_position('bottom')
     
 
-    except KeyError:
+    except (KeyError, FileNotFoundError) as e:
         ax.axis('off')
 
 
