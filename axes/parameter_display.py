@@ -49,7 +49,9 @@ def netw_params_display(ax, bpath, nsp):
     text = '$T_1 = '+r'\text{\SI{'+'%d}{s}' %(int(nsp['T1']/second))+'}$, '+\
            '$T_2 = '+r'\text{\SI{'+'%d}{s}' %(int(nsp['T2']/second))+'}$, '+\
            '$T_3 = '+r'\text{\SI{'+'%d}{s}' %(int(nsp['T3']/second))+'}$' +\
-           '\n$dt='+r'\text{'+'\SI{%.2f}{ms}' %(nsp['dt']/ms) +'}$'
+           '\n$T_4 = '+r'\text{\SI{'+'%d}{s}' %(int(nsp['T4']/second))+'}$, '+\
+           '$T_5 = '+r'\text{\SI{'+'%d}{s}' %(int(nsp['T5']/second))+'}$, ' +\
+           '$dt='+r'\text{'+'\SI{%.2f}{ms}' %(nsp['dt']/ms) +'}$'
 
 
     ax.text(0., 0.215, text,
