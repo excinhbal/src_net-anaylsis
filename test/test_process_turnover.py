@@ -77,18 +77,17 @@ class Test_extract_lifetimes(unittest.TestCase):
         np.testing.assert_array_almost_equal (lts_dthonly, [6.,6.])
 
          
-    # def test_turnover_data_speed(self):
-    #     t_split, t_cut, bin_w = 4*second, 2*second, 1*second
-    #     turnover_data = np.genfromtxt('test/test_sets/turnover_test_set1',
-    #                                   delimiter=',')
+    def test_turnover_data_speed(self):
+        t_split, t_cut, bin_w = 4*second, 2*second, 1*second
+        turnover_data = np.genfromtxt('test/test_sets/turnover_test_set1',
+                                      delimiter=',')
 
-    #     a = time.time()
-    #     full_t, ex_ids = extract_survival(turnover_data,
-    #                                       bin_w, 1000,
-    #                                       t_split, t_cut)
-    #     b = time.time()
+        a = time.time()
+        lts, dts, _ = extract_lifetimes(turnover_data, 1000,
+                                        t_split, t_cut)
+        b = time.time()
 
-    #     print('Test Set 1 took :', b-a, ' s')
+        print('Test Set 1 took :', b-a, ' s')
         
 
 
