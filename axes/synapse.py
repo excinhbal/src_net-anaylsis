@@ -42,6 +42,9 @@ def n_active_synapses_exc(ax, bpath, nsp):
         with open(bpath+'/raw/c_stat.p', 'rb') as pfile:
             c_stat = pickle.load(pfile)
 
+        print(c_stat['t'])
+        print(c_stat['c'])
+
         ax.plot(c_stat['t'], c_stat['c'], color='red', lw=2)
         
     except FileNotFoundError:
