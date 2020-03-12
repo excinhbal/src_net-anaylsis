@@ -1,6 +1,7 @@
 
 import pickle
 import numpy as np
+import scipy.stats
 from brian2.units import mV, ms, second
 
 
@@ -404,4 +405,107 @@ def firing_rates_plot_inh(ax, bpath, nsp):
     except (ValueError,KeyError) as e:
         ax.axis('off')
 
+    
+
+
+
+def _translate_type(ztype):
+    if ztype=='ins':
+        return 'growth'
+    if ztype=='prn':
+        return 'pruning'
+    
+        
+def syn_turnover_histogram(ax, bpath, nsp, cn='EE', ztype='ins'):
+
+    if cn=='EE':
+        cn_app=''
+        color = 'blue'
+    elif cn=='EI':
+        cn_app='_EI'
+        color='red'
+    
+    try:
+
+        with open(bpath+'/raw/ins-prn_counts%s.p' %cn_app, 'rb') as pfile:
+            ip_df = pickle.load(pfile)
+
+        ax.hist(ip_df[ztype+'_c'], bins=35, color=color)
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+        ax.set_xlabel('number of %s %s events' %(cn, _translate_type(ztype)))
+        ax.set_ylabel('occurrence')
+
+    except (ValueError,KeyError) as e:
+        ax.axis('off')
+
+    
+        
+def syn_turnover_EE_EI_correlation(ax, bpath, nsp, xtype='ins', ytype='prn'):
+
+    try:
+
+        with open(bpath+'/raw/ins-prn_counts.p', 'rb') as pfile:
+            EE_df = pickle.load(pfile)
+
+        with open(bpath+'/raw/ins-prn_counts_EI.p', 'rb') as pfile:
+            EI_df = pickle.load(pfile)
+
+        xdata, ydata = EE_df[xtype+'_c'], EI_df[ytype+'_c']
+   
+        ax.scatter(xdata, ydata, 2.)
+        
+        c,p = scipy.stats.pearsonr(xdata, ydata)
+
+        ax.text(0.75, 0.05, '$c=%.3f$' %c, transform=ax.transAxes)
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+
+        ax.set_xlabel('EE %s events' % _translate_type(xtype))
+        ax.set_ylabel('EI %s events' % _translate_type(ytype))
+
+    except (ValueError,KeyError) as e:
+        ax.axis('off')
+    
+
+
+def syn_turnover_ins_prn_correlation(ax, bpath, nsp, cn='EE'):
+
+    if cn=='EE':
+        cn_app=''
+        color = 'blue'
+    elif cn=='EI':
+        cn_app='_EI'
+        color='red'
+    
+    try:
+
+        with open(bpath+'/raw/ins-prn_counts%s.p' %cn_app, 'rb') as pfile:
+            ip_df = pickle.load(pfile)
+
+        ins_c, prn_c = ip_df['ins_c'], ip_df['prn_c']
+
+        ax.scatter(ins_c, prn_c, 2., color=color)
+      
+        c,p = scipy.stats.pearsonr(ins_c, prn_c)
+
+        ax.text(0.75, 0.05, '$c=%.3f$' %c, transform=ax.transAxes)
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+        
+        ax.set_xlabel('%s growth events' % cn)
+        ax.set_ylabel('%s prune events' % cn)
+
+    except (ValueError,KeyError) as e:
+        ax.axis('off')
     
