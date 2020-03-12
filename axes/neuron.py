@@ -46,6 +46,144 @@ def raster_plot(ax, bpath, nsp, tmin, tmax):
 
 
 
+def raster_plot_sorted(ax, bpath, nsp, tmin, tmax, lookup={}):
+    '''
+    '''
+
+    with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
+        GExc_spks = pickle.load(pfile)
+    with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
+        GInh_spks = pickle.load(pfile)
+
+    try:
+
+        t_idx = np.logical_and(GExc_spks['t']/ms>tmin/ms,
+                              GExc_spks['t']/ms<tmax/ms)
+
+        peak_center = (tmax+tmin)/(2*ms)
+
+        times = GExc_spks['t'][t_idx]/ms - peak_center
+        n_idx = GExc_spks['i'][t_idx]
+
+        np.testing.assert_array_equal(np.sort(times),
+                                      np.array(times))
+
+        print(lookup)
+        if lookup != {}:
+            k = np.max(list(lookup.values()))+1
+        else:
+            k = 0
+
+        print(k)
+            
+        n_idx_sorted = []
+
+        for i in n_idx:
+
+            if not lookup.get(i):
+                lookup[i] = k
+                k+=1 
+
+            n_idx_sorted.append(lookup[i])
+
+
+        ax.plot(times, n_idx_sorted, marker='.', color='blue',
+                markersize=.5, linestyle='None')
+
+        
+    except AttributeError:
+
+        print(bpath[-4:], "reports: AttributeError. Guess: no exc. spikes from",
+              "{:d}s to {:d}s".format(int(tmin/ms),int(tmax/ms)))
+
+    try:
+
+        indx = np.logical_and(GInh_spks['t']/ms>tmin/ms, GInh_spks['t']/ms<tmax/ms)
+        ax.plot(GInh_spks['t'][indx]/ms - peak_center,
+                GInh_spks['i'][indx]+nsp['N_e'], marker='.',
+                color='red', markersize=.5, linestyle='None')
+        
+    except AttributeError:
+
+        print(bpath[-4:], "reports: AttributeError. Guess: no inh. spikes from",
+              "{:d}s to {:d}s".format(int(tmin/ms),int(tmax/ms)))
+
+
+    ax.set_xlim(tmin/ms-peak_center, tmax/ms-peak_center)
+    ax.set_xlabel('time [ms]')
+    ax.set_ylim(0, nsp['N_e'] + nsp['N_i'])
+    
+    # ax.set_title('T='+str(T/ms)+' s')
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    return lookup
+
+
+
+
+
+def raster_plot_with_peaks(ax, bpath, nsp, tmin, tmax):
+    '''
+    '''
+
+    with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
+        GExc_spks = pickle.load(pfile)
+    with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
+        GInh_spks = pickle.load(pfile)
+
+    try:
+
+        t_idx = np.logical_and(GExc_spks['t']/ms>tmin/ms,
+                              GExc_spks['t']/ms<tmax/ms)
+
+        times = GExc_spks['t'][t_idx]/second
+        n_idx = GExc_spks['i'][t_idx]
+
+        np.testing.assert_array_equal(np.sort(times),
+                                      np.array(times))
+
+        ax.plot(times, n_idx_sorted, marker='.', color='blue',
+                markersize=.5, linestyle='None')
+
+        
+    except AttributeError:
+
+        print(bpath[-4:], "reports: AttributeError. ",
+              "Guess: no exc. spikes from",
+              "{:d}s to {:d}s".format(int(tmin/second),int(tmax/second)))
+
+    try:
+        indx = np.logical_and(GInh_spks['t']/ms>tmin/ms,
+                              GInh_spks['t']/ms<tmax/ms)
+        
+        ax.plot(GInh_spks['t'][indx]/second,
+                GInh_spks['i'][indx]+nsp['N_e'], marker='.',
+                color='red', markersize=.5, linestyle='None')
+        
+    except AttributeError:
+        print(bpath[-4:], "reports: AttributeError. ",
+              "Guess: no inh. spikes from",
+              "{:d}s to {:d}s".format(int(tmin/second),int(tmax/second)))
+
+
+    ax.set_xlim(tmin/second, tmax/second)
+    ax.set_xlabel('time [s]')
+    ax.set_ylim(0, nsp['N_e'] + nsp['N_i'])
+    
+    # ax.set_title('T='+str(T/second)+' s')
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+
+
+
 
 def raster_plot_poisson(ax, bpath, nsp, tmin, tmax):
     '''
