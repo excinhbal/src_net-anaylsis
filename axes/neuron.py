@@ -418,6 +418,8 @@ def _translate_type(ztype):
         
 def syn_turnover_histogram(ax, bpath, nsp, cn='EE', ztype='ins'):
 
+    ax.axis('on')
+
     if cn=='EE':
         cn_app=''
         color = 'blue'
@@ -446,6 +448,8 @@ def syn_turnover_histogram(ax, bpath, nsp, cn='EE', ztype='ins'):
     
         
 def syn_turnover_EE_EI_correlation(ax, bpath, nsp, xtype='ins', ytype='prn'):
+
+    ax.axis('on')
 
     try:
 
@@ -477,6 +481,8 @@ def syn_turnover_EE_EI_correlation(ax, bpath, nsp, xtype='ins', ytype='prn'):
 
 
 def syn_turnover_ins_prn_correlation(ax, bpath, nsp, cn='EE'):
+
+    ax.axis('on')
 
     if cn=='EE':
         cn_app=''

@@ -34,6 +34,8 @@ def overview_figure(bpath, nsp):
 
     fig.set_size_inches((1920/150*5/4)*6/4,1080/150*7/3)
 
+    for _,ax in axs.items():
+        ax.axis('off')
 
     # --------------------------------------------------------------
 
@@ -60,10 +62,8 @@ def overview_figure(bpath, nsp):
     syn_turnover_EE_EI_correlation(axs['4,4'], bpath, nsp,
                                    xtype='ins', ytype='prn')
     
-    
-
         
-    netw_params_display(axs['1,4'], bpath, nsp)
+    netw_params_display(axs['5,3'], bpath, nsp)
     neuron_params_display(axs['1,5'], bpath, nsp)
     poisson_input_params_display(axs['2,5'], bpath, nsp)
     synapse_params_display(axs['3,5'], bpath, nsp)

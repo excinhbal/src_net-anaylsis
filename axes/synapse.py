@@ -2,64 +2,171 @@
 import pickle
 
 import numpy as np
+import scipy.stats
 from scipy.stats import norm, lognorm
 from brian2.units import mV, ms, second
 from decimal import Decimal
 
+from ..utils import convert_to_EE_adjacency_matrix, \
+                    convert_to_EI_adjacency_matrix
 
-def n_active_synapses_exc(ax, bpath, nsp):
+
+def contacts_per_neuron_histogram(ax, bpath, nsp, cn='EE', ztype='in'):
+
+    ax.axis('on')
+
+    if cn=='EE':
+        cn_app, color, cn_f = '', 'blue', 'ee'
+    elif cn=='EI':
+        cn_app, color, cn_f = '_EI', 'red', 'ei'
+
 
     try: 
-        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+        with open(bpath+'/raw/syn%s_a.p' %cn_f, 'rb') as pfile:
             synee_a = pickle.load(pfile)
 
+        syn_array = synee_a['syn_active'][-1]
 
-        # trace 1: data from synEE_a (~11 data points)
-        active_at_t = np.sum(synee_a['syn_active'], axis=1)
+        if cn=='EE':
+            adj_m = convert_to_EE_adjacency_matrix(syn_array, nsp['N_e'])
+        elif cn=='EI':
+            adj_m = convert_to_EI_adjacency_matrix(syn_array, nsp['N_e'],
+                                                   nsp['N_i'])
 
-        print(active_at_t)
-        print(synee_a['t'])
+        if ztype=='in':
+            connections = np.sum(adj_m, axis=0)
+        elif ztype=='out':
+            connections = np.sum(adj_m, axis=1)
+            
 
-        all_at_t = np.shape(synee_a['syn_active'])[1]
-        assert all_at_t == nsp['N_e']*(nsp['N_e']-1)
+        bin_w = int((np.max(connections)-np.min(connections))/20)
+        bins = np.arange(np.min(connections)-2*bin_w,
+                         np.max(connections)+2*bin_w,
+                         bin_w)
 
-        ax.plot(synee_a['t'], active_at_t/all_at_t, lw=2)
+        ax.hist(connections, bins, color=color)
 
-        # trace2 - only synapse active and larger than c
-        measurable_at_t = (synee_a['a'] > nsp['strct_c']).astype(int)
 
-        assert np.array_equal(measurable_at_t,
-                              measurable_at_t * synee_a['syn_active'])
-        
-        ax.plot(synee_a['t'], np.sum(measurable_at_t,axis=1)/all_at_t,
-                lw=2, color='deepskyblue')
-    
     except FileNotFoundError:
         print(bpath[-4:], "reports: No n_active data!")
         ax.set_title("No data found")
 
-    try: 
-        with open(bpath+'/raw/c_stat.p', 'rb') as pfile:
-            c_stat = pickle.load(pfile)
 
-        print(c_stat['t'])
-        print(c_stat['c'])
-
-        ax.plot(c_stat['t'], c_stat['c'], color='red', lw=2)
-        
-    except FileNotFoundError:
-        print(bpath[-4:], "reports: No n_active data!")
-        ax.set_title("no cstat data")
-
-    ax.set_xlabel('time [s]')
-    ax.set_ylabel('fraction of synapses active')
+    ax.set_xlabel('number of %s %sputs' %(cn,ztype))
+    ax.set_ylabel('occurence')
     
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
 
+
+
+def connection_count_correlation(ax, bpath, nsp, cn1='EE', cn2='EE'):
+
+    ax.axis('on')
+
+    try: 
+        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+            synee_a = pickle.load(pfile)
+
+        syn_array = synee_a['syn_active'][-1]
+
+        adj_m = convert_to_EE_adjacency_matrix(syn_array, nsp['N_e'])
+        xcons = np.sum(adj_m, axis=0)
+
+        if cn2=='EE':
+            color = 'blue'
+            ycons = np.sum(adj_m, axis=1)
+            
+        elif cn2=='EI':
+            color = 'gray'
+            with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
+                synee_a = pickle.load(pfile)
+
+            syn_array = synee_a['syn_active'][-1]
+            adj_m = convert_to_EI_adjacency_matrix(syn_array, nsp['N_e'],
+                                                   nsp['N_i'])
+            ycons = np.sum(adj_m, axis=0)
+
+
+        c,p = scipy.stats.pearsonr(xcons, ycons)
+        ax.text(0.75, 0.05, '$c=%.3f$' %c, transform=ax.transAxes)
+        
+        ax.scatter(xcons,ycons, 2., color=color)
+
+
+    except FileNotFoundError:
+        print(bpath[-4:], "reports: No n_active data!")
+        ax.set_title("No data found")
+
+
+    ax.set_xlabel('%s inputs' %cn1)
+    if cn2=='EE':
+        ax.set_ylabel('%s outputs' %cn2)
+    elif cn2=='EI':
+        ax.set_ylabel('%s inputs' %cn2)
+        
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+
+
+def connection_weight_correlation(ax, bpath, nsp, cn1='EE', cn2='EE'):
+
+    ax.axis('on')
+
+    try: 
+        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+            synee_a = pickle.load(pfile)
+
+        # syn_array = synee_a['syn_active'][-1]
+        syn_array     = synee_a['a'][-1]
+
+        adj_m = convert_to_EE_adjacency_matrix(syn_array, nsp['N_e'])
+        xcons = np.sum(adj_m, axis=0)
+
+        if cn2=='EE':
+            color = 'blue'
+            ycons = np.sum(adj_m, axis=1)
+            
+        elif cn2=='EI':
+            color = 'gray'
+            with open(bpath+'/raw/synei_a.p', 'rb') as pfile:
+                synee_a = pickle.load(pfile)
+
+            # syn_array = synee_a['syn_active'][-1]
+            syn_array     = synee_a['a'][-1]
+            adj_m = convert_to_EI_adjacency_matrix(syn_array, nsp['N_e'],
+                                                   nsp['N_i'])
+            ycons = np.sum(adj_m, axis=0)
+
+
+        c,p = scipy.stats.pearsonr(xcons, ycons)
+        ax.text(0.75, 0.05, '$c=%.3f$' %c, transform=ax.transAxes)
+        
+        ax.scatter(xcons,ycons, 2., color=color)
+
+
+    except FileNotFoundError:
+        print(bpath[-4:], "reports: No n_active data!")
+        ax.set_title("No data found")
+
+
+    ax.set_xlabel('%s inputs' %cn1)
+    if cn2=='EE':
+        ax.set_ylabel('%s outputs' %cn2)
+    elif cn2=='EI':
+        ax.set_ylabel('%s inputs' %cn2)
+        
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
     
+   
 
 def n_active_synapses_inh(ax, bpath, nsp):
 
@@ -412,3 +519,56 @@ def synEIdyn_data(ax, bpath, nsp, when, bins=50):
         ax.axis('off')
     
         
+
+
+def n_active_synapses_exc(ax, bpath, nsp):
+
+    try: 
+        with open(bpath+'/raw/synee_a.p', 'rb') as pfile:
+            synee_a = pickle.load(pfile)
+
+
+        # trace 1: data from synEE_a (~11 data points)
+        active_at_t = np.sum(synee_a['syn_active'], axis=1)
+
+        print(active_at_t)
+        print(synee_a['t'])
+
+        all_at_t = np.shape(synee_a['syn_active'])[1]
+        assert all_at_t == nsp['N_e']*(nsp['N_e']-1)
+
+        ax.plot(synee_a['t'], active_at_t/all_at_t, lw=2)
+
+        # trace2 - only synapse active and larger than c
+        measurable_at_t = (synee_a['a'] > nsp['strct_c']).astype(int)
+
+        assert np.array_equal(measurable_at_t,
+                              measurable_at_t * synee_a['syn_active'])
+        
+        ax.plot(synee_a['t'], np.sum(measurable_at_t,axis=1)/all_at_t,
+                lw=2, color='deepskyblue')
+    
+    except FileNotFoundError:
+        print(bpath[-4:], "reports: No n_active data!")
+        ax.set_title("No data found")
+
+    try: 
+        with open(bpath+'/raw/c_stat.p', 'rb') as pfile:
+            c_stat = pickle.load(pfile)
+
+        print(c_stat['t'])
+        print(c_stat['c'])
+
+        ax.plot(c_stat['t'], c_stat['c'], color='red', lw=2)
+        
+    except FileNotFoundError:
+        print(bpath[-4:], "reports: No n_active data!")
+        ax.set_title("no cstat data")
+
+    ax.set_xlabel('time [s]')
+    ax.set_ylabel('fraction of synapses active')
+    
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')        
