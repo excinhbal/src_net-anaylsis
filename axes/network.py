@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 from brian2.units import mV, ms, second, Hz
 
+import mrestimator as mre
 import scipy.signal 
 
 
@@ -128,3 +129,31 @@ def inst_rates_with_peaks(ax, bpath, nsp, tmin, tmax, tmax_vis=0):
     return peak_times
     
         
+
+
+
+def branching_ratio(ax, bpath, nsp, bin_w):
+
+    with open(bpath+'/raw/gexc_spks.p', 'rb') as pfile:
+        GExc_spks = pickle.load(pfile)
+    # with open(bpath+'/raw/ginh_spks.p', 'rb') as pfile:
+    #     GInh_spks = pickle.load(pfile)
+
+
+    ts = GExc_spks['t']/ms
+    ts = ts[ts>(nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4'])/ms]
+    ts = ts - (nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4'])/ms
+
+    assert(np.min(ts) >= 0)
+
+    bins = np.arange(0, (nsp['T5']+bin_w)/ms, bin_w/ms)
+    counts, bins = np.histogram(ts, bins=bins)
+
+    print(np.shape(counts))
+    # counts = np.reshape(counts, (len(counts),1))
+    # print(np.shape(counts))
+    
+    rk = mre.coefficients(counts, dt=bin_w/ms, dtunit='ms', desc='')
+    ft = mre.fit(rk)
+    
+    return ft
