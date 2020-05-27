@@ -23,41 +23,104 @@ from .axes.neuron import *
 from .axes.synapse import *
 from .axes.parameter_display import *
 
+import mrestimator as mre
+from typing import Dict
+
+
+def h_offset(exp_fit: mre.FitResult, expoffset_fit: mre.FitResult) -> bool:
+    """
+    Test the H_offset hypothesis as described in (Wilting&Priesemann 2018; Supplemental Note 5)
+
+    :return: if True, then the data set should be rejected for m estimation
+    """
+
+    return 2*expoffset_fit.ssres < exp_fit.ssres
+
+
+def h_tau(exp_fit: mre.FitResult, expoffset_fit: mre.FitResult) -> bool:
+    """
+    Test the H_tau hypothesis as described in (Wilting&Priesemann 2018; Supplemental Note 5)
+
+    :return: if True, then the data set should be rejected for m estimation
+    """
+    tau_exp, tau_offset = exp_fit.tau, expoffset_fit.tau
+
+    return (np.abs(tau_exp - tau_offset) / np.min((tau_exp, tau_offset))) > 2
+
+
+def h_lin(rk: mre.CoefficientResult, exp_fit: mre.FitResult) -> bool:
+    """
+    Test the H_lin hypothesis as described in (Wilting&Priesemann 2018; Supplemental Note 5)
+
+    :return: if True, then the data set should be rejected for m estimation
+    """
+    lin_fit = mre.fit(rk, fitfunc=mre.f_linear)
+
+    return lin_fit.ssres < exp_fit.ssres
+
 
 def branching_ratio_figure(bpath, nsp):
+    size_factor = 2
+    rc('font', size=str(8*size_factor))
 
-    fig = pl.figure()
-    ax_lines, ax_cols = 1,1
-    axs = {}
+    fig: pl.Figure = pl.figure()
+    ax_lines, ax_cols = 2,2
+    axs: Dict[str, pl.Axes] = {}
     for x,y in itertools.product(range(ax_lines),range(ax_cols)):
         axs['%d,%d'%(x+1,y+1)] = pl.subplot2grid((ax_lines, ax_cols), (x, y))
 
-    fig.set_size_inches(6*1.6/2,2.*1.6)
-
-
-    # for _,ax in axs.items():
-    #     ax.axis('off')
-
-    tmin1, tmax1 = 0*second, nsp['T1']
-    tmin3, tmax3 = nsp['T1']+nsp['T2'], nsp['T1']+nsp['T2']+nsp['T3']
+    fig.set_size_inches(ax_cols*size_factor*6*1.6/2,ax_lines*size_factor*2.*1.6)
 
     tmin5 =  nsp['T1']+nsp['T2']+nsp['T3']+nsp['T4']
-    
-    # raster_plot(axs['1,1'], bpath, nsp, tmin=tmin1, tmax=tmax1)
-    raster_plot(axs['1,1'], bpath, nsp, tmin=tmin5, tmax=tmin5+5*second)
+
+    raster_plot(axs['1,1'], bpath, nsp, tmin=tmin5, tmax=tmin5+nsp["T5"])
 
     bin_w = 10*ms
 
-    ft = branching_ratio('', bpath, nsp, bin_w)
+    rk, ft, (counts, bins) = branching_ratio('', bpath, nsp, bin_w)
+    expoffset_fit = mre.fit(rk, fitfunc=mre.f_exponential_offset)
+    Hs = h_offset(ft, expoffset_fit), h_tau(ft, expoffset_fit), h_lin(rk, ft)
+    H_offset_rej, H_tau_rej, H_lin_rej = ["rej" if H else "acc" for H in Hs]
 
-    axs['1,1'].text(0.6, -0.5, 'mre %.6f' %ft.mre,
-                    transform=axs['1,1'].transAxes)
+    tbl = axs['2,1'].table(loc="center",
+                           cellText=(("$\Delta{}t$", str(bin_w)),
+                                     ("mre", f"{ft.mre:0.6f}"),
+                                     ("$H_{offset}$", H_offset_rej),
+                                     ("$H_{\\tau}$", H_tau_rej,),
+                                     ("$H_{lin}$", H_lin_rej),
+                                     ("ATotalMax", nsp['ATotalMax']),
+                                     ("iATotalMax", nsp['iATotalMax']),
+                                     ("$mu_e$", nsp["mu_e"]),
+                                     ("$mu_i$", nsp["mu_i"]),
+                                     )
+                           )
+    tbl.scale(1, 0.6*size_factor)
+    axs['2,1'].axis('tight')
+    axs['2,1'].axis('off')
 
-    axs['1,1'].text(0.05,-0.5, 'ATotalMax %.2f' %nsp['ATotalMax'],
-                    transform=axs['1,1'].transAxes)
-    axs['1,1'].text(0.05,-0.65, 'iATotalMax %.4f' %nsp['iATotalMax'],
-                    transform=axs['1,1'].transAxes)
+    bin_scales = [0.25, 0.5, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+    def fit_bin(bin_w, bin_s):
+        rk, _, _ = branching_ratio('', bpath, nsp, bin_w*bin_s)
+        return mre.fit(rk, fitfunc=mre.f_exponential_offset)
+
+    fits = [fit_bin(bin_w, bin_s).mre for bin_s in bin_scales]
+    fits_expected = [ft.mre**bin_s for bin_s in bin_scales]
+    bin_scales.insert(2, 1)
+    fits.insert(2, ft.mre)
+    fits_expected.insert(2, ft.mre)
+
+    markersize = str(int(5 * size_factor))
+    axs['1,2'].plot(bin_scales, fits, label="actual", linestyle="None", marker="D", markersize=markersize)
+    axs['1,2'].plot(bin_scales, fits_expected, label="expected", linestyle="None", marker="P", markersize=markersize)
+    axs['1,2'].legend()
+    axs['1,2'].set_title("$actual=m(binsize=k\\Delta{}t)=m(binsize=\\Delta{}t)^k=expected$, $\Delta{}t=10ms$")
+    axs['1,2'].set_xlabel("$k$")
+    axs['1,2'].set_ylabel("$\hat{m}$")
+
+    axs['2,2'].plot(bins[1:], counts)
+    axs['2,2'].set_xlim(0, bins[-1])
+    axs['2,2'].set_title(f"Activity with binsize={bin_w}")
 
     pl.tight_layout()
 

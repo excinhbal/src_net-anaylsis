@@ -156,4 +156,4 @@ def branching_ratio(ax, bpath, nsp, bin_w):
     rk = mre.coefficients(counts, dt=bin_w/ms, dtunit='ms', desc='')
     ft = mre.fit(rk)
     
-    return ft
+    return rk, ft, (counts, bins)
