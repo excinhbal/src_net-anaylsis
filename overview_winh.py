@@ -82,16 +82,19 @@ def overview_figure(bpath, nsp):
 
     synEIdyn_data(axs['4,4'], bpath, nsp, when='start')
     synEIdyn_data(axs['4,5'], bpath, nsp, when='end')
-    
+
+    axs['5,1'].set_title("Conductance Trace of Single Exc Neuron")
     ge_plot(axs['5,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
     gi_plot(axs['5,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
     gegi_plot(axs['5,1'], bpath, nsp, tmin=tmin1, tmax=tmax1, i=0)
-    
+
+    axs['5,2'].set_title("Conductance Trace of Single Exc Neuron")
     ge_plot(axs['5,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
     gi_plot(axs['5,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
     gegi_plot(axs['5,2'], bpath, nsp, tmin=tmin3, tmax=tmax3, i=1)
 
-    ge_plot(axs['5,3'], bpath, nsp, tmin=tmin3, tmax=tmin3+100*ms, i=1)
+    axs['5,3'].set_title("Conductance Trace of Single Exc Neuron")
+    ge_plot(axs['5,3'], bpath, nsp, tmin=tmin3, tmax=tmin3+0.1*second, i=1)
 
     voltage_traces(axs['6,1'], bpath, nsp, tmin=tmin1, tmax=tmax1)
     voltage_traces(axs['6,2'], bpath, nsp, tmin=tmin3, tmax=tmax3)

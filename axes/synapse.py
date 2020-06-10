@@ -343,10 +343,11 @@ def synapse_weight_traces(ax, bpath, nsp, tmin, tmax,
             ax.plot(syn_stat['t'][indx],syn_stat['a'][:,i][indx],
                     color='grey')
 
-        if ylim_top>0:
-            ax.set_ylim(0,ylim_top)
+        if ylim_top > 0:
+            ax.set_ylim(0, ylim_top)
+            ax.set_ylabel(f"weight (cut off at {ylim_top})")
 
-        ax.set_title('Synaptic Weight Traces')
+        ax.set_title(f'Synaptic Weight Traces {connections}')
         ax.set_xlabel('time [s]')
 
         ax.spines['right'].set_visible(False)
@@ -537,7 +538,7 @@ def n_active_synapses_exc(ax, bpath, nsp):
         all_at_t = np.shape(synee_a['syn_active'])[1]
         assert all_at_t == nsp['N_e']*(nsp['N_e']-1)
 
-        ax.plot(synee_a['t'], active_at_t/all_at_t, lw=2)
+        ax.plot(synee_a['t'], active_at_t/all_at_t, lw=2, label="active")
 
         # trace2 - only synapse active and larger than c
         measurable_at_t = (synee_a['a'] > nsp['strct_c']).astype(int)
@@ -546,7 +547,7 @@ def n_active_synapses_exc(ax, bpath, nsp):
                               measurable_at_t * synee_a['syn_active'])
         
         ax.plot(synee_a['t'], np.sum(measurable_at_t,axis=1)/all_at_t,
-                lw=2, color='deepskyblue')
+                lw=2, color='deepskyblue', label=f'active and a > {nsp["strct_c"]}')
     
     except FileNotFoundError:
         print(bpath[-4:], "reports: No n_active data!")
