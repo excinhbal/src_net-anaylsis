@@ -75,7 +75,7 @@ def branching_ratio_figure(bpath, nsp):
 
     raster_plot(axs['1,1'], bpath, nsp, tmin=tmin5, tmax=tmin5+nsp["T5"])
 
-    bin_w = 10*ms
+    bin_w = 4.7*ms  # BiExp EE time to peak
 
     rk, ft, (counts, bins) = branching_ratio('', bpath, nsp, bin_w)
     expoffset_fit = mre.fit(rk, fitfunc=mre.f_exponential_offset)
@@ -114,7 +114,7 @@ def branching_ratio_figure(bpath, nsp):
     axs['1,2'].plot(bin_scales, fits, label="actual", linestyle="None", marker="D", markersize=markersize)
     axs['1,2'].plot(bin_scales, fits_expected, label="expected", linestyle="None", marker="P", markersize=markersize)
     axs['1,2'].legend()
-    axs['1,2'].set_title("$actual=m(binsize=k\\Delta{}t)=m(binsize=\\Delta{}t)^k=expected$, $\Delta{}t=10ms$")
+    axs['1,2'].set_title(f"$actual=m(binsize=k\\Delta{{}}t)=m(binsize=\\Delta{{}}t)^k=expected$, $\Delta{{}}t={bin_w}$")
     axs['1,2'].set_xlabel("$k$")
     axs['1,2'].set_ylabel("$\hat{m}$")
 
