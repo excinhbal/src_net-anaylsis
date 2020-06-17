@@ -49,8 +49,11 @@ def single_wtraces(bpath, nsp):
 
         ax.plot(synee_stat['t'][indx],synee_stat['a'][:,i][indx], color='grey')
 
-        inac_t = synee_stat['t'][indx][synee_stat['syn_active'][:,i][indx]==0]
-        ax.plot(inac_t, np.zeros_like(inac_t), '.', color='red')
+        if "syn_active" in synee_stat:
+            # we did record information about which synapses where active
+            # so let's display it as well
+            inac_t = synee_stat['t'][indx][synee_stat['syn_active'][:,i][indx]==0]
+            ax.plot(inac_t, np.zeros_like(inac_t), '.', color='red')
 
         # ax.text(0.47, 0.95,
         # 'ascale='+'%.2E' % Decimal(tr.ascale),
