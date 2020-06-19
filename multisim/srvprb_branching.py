@@ -17,7 +17,7 @@ class SrvPrbBranching(MultiSimPlotRunner):
 
     def plot(self, directories, nsps, axs):
         ax = axs[0][0]
-        revreg, subcrit = "reverberating regime ($0.9 < m < 0.995$)", "sub-critical ($m <= 0.9$)"
+        revreg, subcrit = "reverberating regime", "sub-critical"
         colors = {revreg: "green", subcrit: "blue"}
         data, mres = {revreg: [], subcrit: []}, {revreg: [], subcrit: []}
         for dir, nsp in zip(directories, nsps):
@@ -48,7 +48,7 @@ class SrvPrbBranching(MultiSimPlotRunner):
             ax.fill_between(centers, avg-std, avg+std, facecolor=f"light{color}", linewidth=0)
 
         group_info = [(label, len(dfs), np.mean(mres[label]), np.std(mres[label])) for label, dfs in data.items()]
-        group_info_str = [f"{label}: {no:2d}, mean {mean:.2f}, std {std:.2f}" for label, no, mean, std in group_info]
+        group_info_str = [f"{label}: N={no:2d}, $\hat{{m}}={mean:.2f}\pm{std:.2f}$" for label, no, mean, std in group_info]
         ax.legend()
         ax.set_yscale('log')
         ax.set_xscale('log')
