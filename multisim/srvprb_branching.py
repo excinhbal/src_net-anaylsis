@@ -35,14 +35,20 @@ class SrvPrbBranching(MultiSimPlotRunner):
 
         assert(len(data[revreg]) > 0 and len(data[subcrit]) > 0)
 
-        bins = np.logspace(np.log10(1),
-                           np.log10(data[revreg][0]['t_split'] / second + 0.1),
-                           num=100)
+        # strct plasticity is only applied every 1000ms
+        # so bin size needs to be at least 1s, which logspace doesn't
+        # do for the range <10e1
+        bins = np.logspace(np.log10(10e1),
+                           np.log10(np.max([data[revreg][i]['t_split']/second for i in range(0, len(data[revreg]))])+0.1),
+                           num=70)  # 82 exhibits jump in blue curve
+        bins = np.hstack((np.arange(1, 10, 1), bins))
         centers = (bins[:-1] + bins[1:])/2.
+
+        ax.loglog()
 
         for label, dfs in data.items():
             color = colors[label]
-            counts = np.array([np.histogram(df['full_t'], bins=bins, density=True)[0] for df in dfs])
+            counts = [np.histogram(df['full_t'], bins=bins, density=True)[0] for df in dfs]
             avg, std = np.mean(counts, axis=0), np.std(counts, axis=0)
             ax.plot(centers, avg, label=label, color=color)
             ax.fill_between(centers, avg-std, avg+std, facecolor=f"light{color}", linewidth=0)
@@ -50,8 +56,6 @@ class SrvPrbBranching(MultiSimPlotRunner):
         group_info = [(label, len(dfs), np.mean(mres[label]), np.std(mres[label])) for label, dfs in data.items()]
         group_info_str = [f"{label}: N={no:2d}, $\hat{{m}}={mean:.2f}\pm{std:.2f}$" for label, no, mean, std in group_info]
         ax.legend()
-        ax.set_yscale('log')
-        ax.set_xscale('log')
         ax.text(1.0, -0.25, '\n'.join(group_info_str), transform=ax.transAxes, ha='right')
         ax.set_xlabel("survival time [s]")
         ax.set_ylabel("density")
