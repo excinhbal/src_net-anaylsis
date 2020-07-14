@@ -72,16 +72,15 @@ class MultiSimPlotRunner:
                 nsps.append(pickle.load(pfile))
 
         fig, axs = pl.subplots(*self.plot_count, squeeze=False)
-        # TODO size
-        # fig.set_size_inches((1920 / 150 * 5 / 4) * 6 / 4, 1080 / 150 * 7 / 3)
+        # TODO solve usage of fig better to allow wrapping like SrvPrbBranchingWeights
+        self.plot(directories, nsps, fig, axs)
 
-        self.plot(directories, nsps, axs)
-
-    def plot(self, directories: List[str], nsps, axs: List[List[pl.Axes]]) -> None:
+    def plot(self, directories: List[str], nsps, fig, axs: List[List[pl.Axes]]) -> None:
         """ Reimplement this function to plot
 
         :param directories: is a list of the build directory paths
         :param nsps: is the trajectories of the builds, the list corresponds with the list 'directories'
+        :params fig: fig as returned by pl.subplots
         :param axs: a matrix of the subplots, generated with pl.subplots
 
         The reimplementation does not need to save the figure.

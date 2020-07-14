@@ -10,14 +10,13 @@ class SrvPrbBranching(MultiSimPlotRunner):
 
     bin_w = 4.7*ms
     
-    def __init__(self):
-        super(SrvPrbBranching, self).__init__(
-            name="srvprb_branching", plot_count=(1, 1)
-        )
+    def __init__(self, name="srvprb_branching", plot_count=(1, 1)):
+        super(SrvPrbBranching, self).__init__(name, plot_count)
 
-    def plot(self, directories, nsps, axs):
+    def plot(self, directories, nsps, fig, axs):
         ax = axs[0][0]
-        revreg, subcrit = "reverberating regime", "sub-critical"
+        fontsize = 18
+        revreg, subcrit = "reverberating", "sub-critical"
         colors = {revreg: "green", subcrit: "blue"}
         data, mres = {revreg: [], subcrit: []}, {revreg: [], subcrit: []}
         for dir, nsp in zip(directories, nsps):
@@ -55,11 +54,12 @@ class SrvPrbBranching(MultiSimPlotRunner):
 
         group_info = [(label, len(dfs), np.mean(mres[label]), np.std(mres[label])) for label, dfs in data.items()]
         group_info_str = [f"{label}: N={no:2d}, $\hat{{m}}={mean:.2f}\pm{std:.2f}$" for label, no, mean, std in group_info]
-        ax.legend()
-        ax.text(1.0, -0.25, '\n'.join(group_info_str), transform=ax.transAxes, ha='right')
-        ax.set_xlabel("survival time [s]")
-        ax.set_ylabel("density")
-        ax.set_title("EE synapse survival by branching factor")
+        ax.legend(loc="lower left", fontsize=fontsize)
+        # ax.text(1.0, -0.25, '\n'.join(group_info_str), transform=ax.transAxes, ha='right')
+        ax.set_xlabel("survival time [s]", fontsize=fontsize)
+        ax.set_ylabel("probaiblity density", fontsize=fontsize)
+        ax.set_title("Survival times of EE synapses", fontsize=fontsize)
+        ax.tick_params(axis='both', which='major', labelsize=fontsize)
 
 
 if __name__ == '__main__':
