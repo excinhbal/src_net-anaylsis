@@ -55,7 +55,7 @@ def synw_log_figure(bpath, nsp, connections='EE'):
                             connections=connections)
 
         synapse_weights_log(axs['%d,2' %(j+1)], bpath, nsp, tstep=tstep,
-                            bins=50, cutoff=0.0001,
+                            bins=50, cutoff=10**(-3.5),
                             connections=connections)
 
         synapse_weights_log(axs['%d,3' %(j+1)], bpath, nsp, tstep=tstep,
