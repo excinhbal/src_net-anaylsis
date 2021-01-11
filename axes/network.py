@@ -147,7 +147,7 @@ def branching_ratio(ax, bpath, nsp, bin_w):
     assert(np.min(ts) >= 0)
 
     bins = np.arange(0, (nsp['T5']+bin_w)/ms, bin_w/ms)
-    counts, bins = np.histogram(ts, bins=bins)
+    counts, bins = np.histogram(ts, bins=bins, density=False)
 
     print(np.shape(counts))
     # counts = np.reshape(counts, (len(counts),1))
