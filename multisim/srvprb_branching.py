@@ -8,7 +8,7 @@ import mrestimator as mre
 
 class SrvPrbBranching(MultiSimPlotRunner):
 
-    bin_w = 4.7*ms
+    bin_w = 4*ms
     
     def __init__(self, name="srvprb_branching", plot_count=(1, 1)):
         super(SrvPrbBranching, self).__init__(name, plot_count)
