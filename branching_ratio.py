@@ -24,6 +24,7 @@ from .axes.synapse import *
 from .axes.parameter_display import *
 
 import mrestimator as mre
+import scipy.stats as scistats
 from typing import Dict
 
 
@@ -59,6 +60,28 @@ def h_lin(rk: mre.CoefficientResult, exp_fit: mre.FitResult) -> bool:
     return lin_fit.ssres < exp_fit.ssres
 
 
+def h_mean(rk: mre.CoefficientResult) -> bool:
+    """
+    Test the H_r<=0 hypothesis as described in (Wilting&Priesemann 2018; Supplemental Note 5)
+
+    :return: if True, then the data set should be rejected for m estimation
+    """
+
+    statistic, pvalue = scistats.ttest_1samp(rk.coefficients, 0.0)
+    return pvalue / 2 >= 0.1
+
+
+def h_q1_0(rk: mre.CoefficientResult):
+    """
+    Test the H_q=0 hypothesis as described in (Wilting&Priesemann 2018; Supplemental Note 5)
+
+    :return: if True (after H_mean was true), assume Poisson activity, else reject
+    """
+
+    slope, intercept, r_value, p_value, std_err = scistats.linregress(rk.steps, rk.coefficients)
+    return p_value >= 0.05  # <=> accept null hypothesis of q == 0, meaning Poisson process
+
+
 def branching_ratio_figure(bpath):
     nsp = None
     try:
@@ -87,8 +110,10 @@ def branching_ratio_figure(bpath):
 
     rk, ft, (counts, bins) = branching_ratio('', bpath, nsp, bin_w)
     expoffset_fit = mre.fit(rk, fitfunc=mre.f_exponential_offset)
-    Hs = h_offset(ft, expoffset_fit), h_tau(ft, expoffset_fit), h_lin(rk, ft)
-    H_offset_rej, H_tau_rej, H_lin_rej = ["rej" if H else "acc" for H in Hs]
+    Hs = h_offset(ft, expoffset_fit), h_tau(ft, expoffset_fit), h_lin(rk, ft), h_mean(rk), h_q1_0(rk)
+    H_offset_rej, H_tau_rej, H_lin_rej, H_mean_rej, H_q1_0_rej = ["rej" if H else "acc" for H in Hs]
+    H_q1_0_rej = "Poisson" if H_q1_0_rej == "rej" else "rej"  # for this test True/rej means Poisson
+                                                              # if False and H_mean True then reject
 
     tbl = axs['2,1'].table(loc="center",
                            cellText=(("$\Delta{}t$", str(bin_w)),
@@ -96,6 +121,8 @@ def branching_ratio_figure(bpath):
                                      ("$H_{offset}$", H_offset_rej),
                                      ("$H_{\\tau}$", H_tau_rej,),
                                      ("$H_{lin}$", H_lin_rej),
+                                     ("$H_{mean}$", H_mean_rej),
+                                     ("$H_{q1\\_0}$ (if $H_{mean}$ is rej)", H_q1_0_rej),
                                      ("ATotalMax", nsp['ATotalMax']),
                                      ("iATotalMax", nsp['iATotalMax']),
                                      ("$mu_e$", nsp["mu_e"]),
@@ -110,7 +137,7 @@ def branching_ratio_figure(bpath):
 
     def fit_bin(bin_w, bin_s):
         rk, _, _ = branching_ratio('', bpath, nsp, bin_w*bin_s)
-        return mre.fit(rk, fitfunc=mre.f_exponential_offset)
+        return mre.fit(rk, fitfunc=mre.f_exponential)
 
     fits = [fit_bin(bin_w, bin_s).mre for bin_s in bin_scales]
     fits_expected = [ft.mre**bin_s for bin_s in bin_scales]
