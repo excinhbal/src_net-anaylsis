@@ -242,7 +242,7 @@ def synapse_weights_linear(ax, bpath, nsp, tstep, bins, cutoff,
             fs, floc, fscale = lognorm.fit(active_weight_at_t_cutoff, floc=0)
             f_rv = lognorm(fs, loc=0, scale=fscale)
             xs = np.logspace(start=np.log(cutoff),
-                             stop=np.log(10**-0.5),
+                             stop=np.log(10**-0.0),
                              base=10., num=5000)
             ax.plot(xs, f_rv.pdf(xs), 'r')
 
@@ -316,7 +316,7 @@ def synapse_weights_log(ax, bpath, nsp, tstep, bins, cutoff, label='',
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
-        ax.set_xlim(np.log10(cutoff), -0.5)
+        ax.set_xlim(np.log10(cutoff), -0.0)
 
     except FileNotFoundError:
         print("Couldn't find " + connections + " data")   
