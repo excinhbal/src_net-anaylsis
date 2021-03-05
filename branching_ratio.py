@@ -106,7 +106,7 @@ def branching_ratio_figure(bpath):
 
     raster_plot(axs['1,1'], bpath, nsp, tmin=tmin5, tmax=tmin5+nsp["T5"])
 
-    bin_w = 4.0*ms
+    bin_w = 2.0*ms
 
     rk, ft, (counts, bins) = branching_ratio('', bpath, nsp, bin_w)
     expoffset_fit = mre.fit(rk, fitfunc=mre.f_exponential_offset)
