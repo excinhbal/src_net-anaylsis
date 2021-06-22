@@ -106,7 +106,7 @@ def branching_ratio_figure(bpath):
 
     raster_plot(axs['1,1'], bpath, nsp, tmin=tmin5, tmax=tmin5+nsp["T5"])
 
-    bin_w = 2.0*ms
+    bin_w = 5*ms
 
     rk, ft, (counts, bins) = branching_ratio('', bpath, nsp, bin_w)
     expoffset_fit = mre.fit(rk, fitfunc=mre.f_exponential_offset)
@@ -114,10 +114,12 @@ def branching_ratio_figure(bpath):
     H_offset_rej, H_tau_rej, H_lin_rej, H_mean_rej, H_q1_0_rej = ["rej" if H else "acc" for H in Hs]
     H_q1_0_rej = "Poisson" if H_q1_0_rej == "rej" else "rej"  # for this test True/rej means Poisson
                                                               # if False and H_mean True then reject
+    complex_fit = mre.fit(rk, fitfunc=mre.f_complex)
 
     tbl = axs['2,1'].table(loc="center",
                            cellText=(("$\Delta{}t$", str(bin_w)),
                                      ("mre", f"{ft.mre:0.6f}"),
+                                     ("mre (complex)", f"{complex_fit.mre:0.6f}"),
                                      ("$H_{offset}$", H_offset_rej),
                                      ("$H_{\\tau}$", H_tau_rej,),
                                      ("$H_{lin}$", H_lin_rej),
@@ -153,7 +155,7 @@ def branching_ratio_figure(bpath):
     axs['1,2'].set_xlabel("$k$")
     axs['1,2'].set_ylabel("$\hat{m}$")
 
-    axs['2,2'].plot(bins[1:], counts)
+    axs['2,2'].bar(bins[1:], counts, width=1.0, facecolor="tab:blue", edgecolor="tab:blue")
     axs['2,2'].set_xlim(0, bins[-1])
     axs['2,2'].set_title(f"Activity with binsize={bin_w}")
 
